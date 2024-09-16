@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Installing clouduploader..."
+
+sudo cp clouduploader /usr/local/bin/
+
+sudo chmod +x /usr/local/bin/clouduploader
+
+echo "clouduploader installed successfully! You can now run it by typing 'clouduploader' in the terminal."
