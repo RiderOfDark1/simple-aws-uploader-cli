@@ -1,8 +1,8 @@
 # simple-aws-uploader-cli
 A simple AWS custom CLI that let's you upload files to your bucket.
 # prerequisets
-You need to have an AWS account.
-You need to have AWS CLI installed locally and configured to work with S3 actions.
+You need to have an AWS account.<br>
+You need to have AWS CLI installed locally and configured to work with S3 actions.&nbsp;
 You can use the root user(not recomanded).
 Best practice is to create a user and add Policies with IAM.
 After configuring an IAM user and their policies and roles, configure your AWS CLI to make sure that the settings are set in place.
