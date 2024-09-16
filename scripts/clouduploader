@@ -7,7 +7,7 @@ RESET='\033[0m' # Reset to default color
 
 # Check if the user provided a filename as an argument
 if [ "$#" -ne 1 ]; then
-	echo "Usage: cloudprovider <filename>"
+	echo "Usage: clouduploader <filename>"
 	exit 1
 fi
 
@@ -23,11 +23,15 @@ if [ ! -f "$FILE" ] ; then
 fi
 
 #AWS S3 Bucket location
-AWS_DEFAULT_BUCKET="s3://s3-riders-of-dark-demo"
+AWS_DEFAULT_BUCKET="s3://${ROD_CLOUDUPLOADER_AWS_BUCKET}"
 
 # Check if file exists on AWS S3
-aws s3 ls "$AWS_DEFAULT_BUCKET/$FILE" >/dev/null 2>&1
+aws s3 ls "${AWS_DEFAULT_BUCKET}/${FILE}" >/dev/null 2>&1
 FILE_EXISTENCE_STATUS=$?
+
+#echo "Path:${AWS_DEFAULT_BUCKET}/${FILE}"
+#echo "File existence status:${FILE_EXISTENCE_STATUS}"
+#exit 1
 
 if [ "$FILE_EXISTENCE_STATUS" -eq 0 ]; then
 	echo -e "File ${GREEN}$FILE${RESET} exists in the S3 Bucket."
