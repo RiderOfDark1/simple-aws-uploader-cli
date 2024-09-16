@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#Colors
+RED='\033[31m'
+GREEN='\033[32m'
+RESET='\033[0m' # Reset to default color
+
+# Check if the user provided a filename as an argument
+if [ "$#" -ne 1 ]; then
+	echo "Usage: cloudprovider <filename>"
+	exit 1
+fi
+
+# Store the filename from the first argument
+FILE=$1
+
+# Check if the file exists
+if [ ! -f "$FILE" ] ; then
+#	echo "File '$FILE' exists."
+#else
+	echo "File '$FILE' does not exists."
+	exit 1
+fi
+
+#AWS S3 Bucket location
+AWS_DEFAULT_BUCKET="s3://s3-riders-of-dark-demo"
+
+# Check if file exists on AWS S3
+aws s3 ls "$AWS_DEFAULT_BUCKET/$FILE" >/dev/null 2>&1
+FILE_EXISTENCE_STATUS=$?
+
+if [ "$FILE_EXISTENCE_STATUS" -eq 0 ]; then
+	echo -e "File ${GREEN}$FILE${RESET} exists in the S3 Bucket."
+
+	#Provide user with a prompt where he can decide if he wants to overwrite the file
+	read -p "Do you want to overwrite the file? (y/n):" answer
+	answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
+
+	if [ "$answer" == "y" ]; then
+		echo "Overwriting the file..."
+		aws s3 cp "$FILE" "$AWS_DEFAULT_BUCKET"
+	else
+		echo "File not overwritten."
+	fi
+else
+	#Upload the file directly
+	echo "Uploading file..."
+	aws s3 cp "$FILE" "$AWS_DEFAULT_BUCKET"
+fi
+
+#Use AWS cp command to move a file from a local storage to an S3 storage
+#aws s3 cp "$FILE" "$AWS_DEFAULT_BUCKET"
+
