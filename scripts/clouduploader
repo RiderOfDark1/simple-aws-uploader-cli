@@ -5,6 +5,41 @@ RED='\033[31m'
 GREEN='\033[32m'
 RESET='\033[0m' # Reset to default color
 
+BASHRC_FILE="${HOME}/.bashrc"
+
+#Backup .bashrc before modifying it
+cp "$BASHRC_FILE" "$BASHRC_FILE.bak"
+
+#Search for extra arguments
+while [ "$#" -gt 0 ]; do
+	case $1 in
+		--set-bucket)
+			if [ -n "$2" ]; then
+				if grep -q "^export ROD_CLOUDUPLOADER_AWS_BUCKET=" "$BASHRC_FILE"; then
+
+					#echo "AWS Bucket set to: $2"
+					sed -i "s|^export ROD_CLOUDUPLOADER_AWS_BUCKET=.*|export ROD_CLOUDUPLOADER_AWS_BUCKET=\"$2\"|" "$BASHRC_FILE"
+
+					echo "Variable ROD_CLOUDUPLOADER_AWS_BUCKET found in $BASHRC_FILE. Updating its value."
+				else
+					echo "Variable ROD_CLOUDUPLOADER_AWS_BUCKET not found in $BASHRC_FILE. Adding it."
+					echo "#Add this for using custom script clouduploader" >> "$BASHRC_FILE"	
+					echo "export ROD_CLOUDUPLOADER_AWS_BUCKET=\"$2\"" >> "$BASHRC_FILE"
+				fi
+				#shift 2 if multiple options would be present then maybe shift
+				exit 0
+			else
+				echo -e "${RED}Error: --set-bucket requires a bucket name!${RESET}"
+				exit 1
+			fi
+			;;
+		*)
+			break
+			;;
+	esac
+done
+
+
 # Check if the user provided a filename as an argument
 if [ "$#" -ne 1 ]; then
 	echo "Usage: clouduploader <filename>"
