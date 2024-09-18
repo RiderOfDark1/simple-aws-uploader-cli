@@ -1,11 +1,18 @@
 #!/bin/bash
 
+#Enable debugging
+#set -x
+
 #Colors
 RED='\033[31m'
 GREEN='\033[32m'
 RESET='\033[0m' # Reset to default color
 
 BASHRC_FILE="${HOME}/.bashrc"
+
+#AWS S3 Bucket location
+AWS_DEFAULT_BUCKET="${ROD_CLOUDUPLOADER_AWS_BUCKET}"
+AWS_FULL_PATH_BUCKET="s3://${AWS_DEFAULT_BUCKET}"
 
 #Backup .bashrc before modifying it
 cp "$BASHRC_FILE" "$BASHRC_FILE.bak"
@@ -25,13 +32,25 @@ while [ "$#" -gt 0 ]; do
 					echo "Variable ROD_CLOUDUPLOADER_AWS_BUCKET not found in $BASHRC_FILE. Adding it."
 					echo "#Add this for using custom script clouduploader" >> "$BASHRC_FILE"	
 					echo "export ROD_CLOUDUPLOADER_AWS_BUCKET=\"$2\"" >> "$BASHRC_FILE"
+					source ~/.bashrc
 				fi
 				#shift 2 if multiple options would be present then maybe shift
+				source ~/.bashrc
 				exit 0
 			else
 				echo -e "${RED}Error: --set-bucket requires a bucket name!${RESET}"
 				exit 1
+			fi	
+			;;
+		--get-bucket)
+			source ~/.bashrc
+			if [ -n "$AWS_DEFAULT_BUCKET" ]; then
+				echo "Your current bucket is: ${AWS_DEFAULT_BUCKET}"
+			else
+				echo "Opps, your bucket is empty, I mean dry dry, please set your bucket with the --set-bucket flag."
 			fi
+			exit 0
+			break
 			;;
 		*)
 			break
@@ -57,16 +76,9 @@ if [ ! -f "$FILE" ] ; then
 	exit 1
 fi
 
-#AWS S3 Bucket location
-AWS_DEFAULT_BUCKET="s3://${ROD_CLOUDUPLOADER_AWS_BUCKET}"
-
 # Check if file exists on AWS S3
-aws s3 ls "${AWS_DEFAULT_BUCKET}/${FILE}" >/dev/null 2>&1
+aws s3 ls "${AWS_FULL_PATH_BUCKET}/${FILE}" >/dev/null 2>&1
 FILE_EXISTENCE_STATUS=$?
-
-#echo "Path:${AWS_DEFAULT_BUCKET}/${FILE}"
-#echo "File existence status:${FILE_EXISTENCE_STATUS}"
-#exit 1
 
 if [ "$FILE_EXISTENCE_STATUS" -eq 0 ]; then
 	echo -e "File ${GREEN}$FILE${RESET} exists in the S3 Bucket."
@@ -77,16 +89,12 @@ if [ "$FILE_EXISTENCE_STATUS" -eq 0 ]; then
 
 	if [ "$answer" == "y" ]; then
 		echo "Overwriting the file..."
-		aws s3 cp "$FILE" "$AWS_DEFAULT_BUCKET"
+		aws s3 cp "$FILE" "$AWS_FULL_PATH_BUCKET"
 	else
 		echo "File not overwritten."
 	fi
 else
 	#Upload the file directly
 	echo "Uploading file..."
-	aws s3 cp "$FILE" "$AWS_DEFAULT_BUCKET"
+	aws s3 cp "$FILE" "$AWS_FULL_PATH_BUCKET"
 fi
-
-#Use AWS cp command to move a file from a local storage to an S3 storage
-#aws s3 cp "$FILE" "$AWS_DEFAULT_BUCKET"
-
