@@ -6,6 +6,7 @@ You need to have AWS CLI installed locally and configured to work with S3 action
 You can use the root user(not recomanded).<br>
 Best practice is to create a user and add Policies with IAM.<br>
 After configuring an IAM user and their policies and roles, configure your AWS CLI to make sure that the settings are set in place.<br>
+First make sure that you run the <b>add2path</b> script so that you can use clouduploader globlly.
 # environment variables
 You can manually add export:<br> <b>ROD_CLOUDUPLOADER_AWS_BUCKET="your-aws-s3-bucket"</b> to the ~/.bashrc file.<br>
 Hopefully you are using a user and not the root user.
